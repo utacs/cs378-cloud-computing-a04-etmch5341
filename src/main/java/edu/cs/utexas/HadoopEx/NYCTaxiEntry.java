@@ -93,6 +93,8 @@ public class NYCTaxiEntry {
         float f_tolls;
         float f_time;
         float f_total;
+
+        float f_pickup_longtitude, f_pickup_latitude, f_dropoff_longtitude, f_dropoff_latitude;
         if (count == 16) {
             f_fare = checkFloat(fare.toString());
             f_surcharge = checkFloat(surcharge.toString());
@@ -101,6 +103,12 @@ public class NYCTaxiEntry {
             f_tolls = checkFloat(tolls.toString());
             f_time = checkFloat(time.toString());
             f_total = checkFloat(total.toString());
+
+            f_pickup_longtitude = checkFloat(pickup_longtitude.toString());
+            f_pickup_latitude = checkFloat(pickup_latitude.toString());
+            f_dropoff_longtitude = checkFloat(dropoff_longtitude.toString());
+            f_dropoff_latitude = checkFloat(dropoff_latitude.toString());
+
             if (f_fare >= 0 && f_surcharge >= 0 && f_tax >= 0 && f_tip >= 0 && f_tolls >= 0 && f_total >= 0) {
                 float f_total_calculated = f_fare + f_surcharge + f_tax + f_tip + f_tolls;
                 if (Math.abs(f_total_calculated - f_total) <= 0.0001) {

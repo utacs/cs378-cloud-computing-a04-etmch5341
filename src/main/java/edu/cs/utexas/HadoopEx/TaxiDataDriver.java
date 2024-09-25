@@ -111,52 +111,77 @@ public class TaxiDataDriver extends Configured implements Tool {
 		try {
 			Configuration conf = new Configuration();
 
-			// Job to handle task 2 - Getting the total error rates
-			Job job = new Job(conf, "GPSErrorRates");
-			job.setJarByClass(TaxiDataDriver.class);
+			//--------------------- Task 1 ----------------------
+
+			// Job to handle task 1 - Getting Total Error Count
+			Job job1 = new Job(conf, "GPSErrorRates");
+			job1.setJarByClass(TaxiDataDriver.class);
 
 			// specify a Mapper
-			job.setMapperClass(GPSErrorRatesMapper.class);
+			job1.setMapperClass(GPSErrorCountMapper.class);
 
 			// specify a Reducer
-			job.setReducerClass(EfficientDriversReducer.class);
+			job1.setReducerClass(GPSErrorCountReducer.class);
 
 			// specify output types
-			job.setOutputKeyClass(Text.class);
-			job.setOutputValueClass(IntWritable.class);
+			job1.setOutputKeyClass(Text.class);
+			job1.setOutputValueClass(Text.class);
+
+			FileInputFormat.addInputPath(job1, new Path(args[0]));
+			job1.setInputFormatClass(TextInputFormat.class);
+
+			FileOutputFormat.setOutputPath(job1, new Path(args[1]));
+			job1.setOutputFormatClass(TextOutputFormat.class);
+
+			//--------------------- Task 2 ----------------------
+
+			// Job to handle task 2 - Getting the total error rates
+			Job job2 = new Job(conf, "GPSErrorRates");
+			job2.setJarByClass(TaxiDataDriver.class);
+
+			// specify a Mapper
+			job2.setMapperClass(GPSErrorRatesMapper.class);
+
+			// specify a Reducer
+			job2.setReducerClass(GPSErrorRatesReducer.class);
+
+			// specify output types
+			job2.setOutputKeyClass(Text.class);
+			job2.setOutputValueClass(Text.class);
 
 			//TODO: Depending how we handle input, we may need to change this
 			// specify input and output directories
-			FileInputFormat.addInputPath(job, new Path(args[0]));
-			job.setInputFormatClass(TextInputFormat.class);
+			FileInputFormat.addInputPath(job2, new Path(args[0]));
+			job2.setInputFormatClass(TextInputFormat.class);
 
-			FileOutputFormat.setOutputPath(job, new Path(args[1]));
-			job.setOutputFormatClass(TextOutputFormat.class);
+			FileOutputFormat.setOutputPath(job2, new Path(args[1]));
+			job2.setOutputFormatClass(TextOutputFormat.class);
 
+			//--------------------- Task 3 ----------------------
 
 			// Job to handle Task 3 - Getting the top 10 most efficient drivers
-			Job job2 = new Job(conf, "Top10MostEfficientDrivers");
+			Job job3 = new Job(conf, "Top10MostEfficientDrivers");
 
-			job.setJarByClass(TaxiDataDriver.class);
+			job3.setJarByClass(TaxiDataDriver.class);
 
 			// specify a Mapper
-			job.setMapperClass(GPSErrorRatesMapper.class);
+			job3.setMapperClass(EfficientDriversMapper.class);
 
 			// specify a Reducer
-			job.setReducerClass(EfficientDriversReducer.class);
+			job3.setReducerClass(EfficientDriversReducer.class);
 
 			// specify output types
-			job.setOutputKeyClass(Text.class);
-			job.setOutputValueClass(IntWritable.class);
+			job3.setOutputKeyClass(Text.class);
+			job3.setOutputValueClass(Text.class);
 
 			// specify input and output directories
-			FileInputFormat.addInputPath(job, new Path(args[0]));
-			job.setInputFormatClass(TextInputFormat.class);
+			FileInputFormat.addInputPath(job3, new Path(args[0]));
+			job3.setInputFormatClass(TextInputFormat.class);
 
-			FileOutputFormat.setOutputPath(job, new Path(args[1]));
-			job.setOutputFormatClass(TextOutputFormat.class);
+			FileOutputFormat.setOutputPath(job3, new Path(args[1]));
+			job3.setOutputFormatClass(TextOutputFormat.class);
 
-			return (job.waitForCompletion(true) && job2.waitForCompletion(true) ? 0 : 1);
+			return (job2.waitForCompletion(true) && job2.waitForCompletion(true) && job3.waitForCompletion(true) ? 0 : 1);
 
 		} catch (InterruptedException | ClassNotFoundException | IOException e) {
 			System.err.println("Error during mapreduce job.");

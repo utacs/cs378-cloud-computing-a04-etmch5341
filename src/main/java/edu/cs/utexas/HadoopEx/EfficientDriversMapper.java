@@ -7,7 +7,7 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-public class EfficientDriversMapper extends Mapper<Object, Text, Text, IntWritable> {
+public class EfficientDriversMapper extends Mapper<Object, Text, Text, Text> {
 
 	// Create a counter and initialize with 1
 	private final IntWritable counter = new IntWritable(1);
@@ -17,10 +17,10 @@ public class EfficientDriversMapper extends Mapper<Object, Text, Text, IntWritab
 	public void map(Object key, Text value, Context context) 
 			throws IOException, InterruptedException {
 		
-		StringTokenizer itr = new StringTokenizer(value.toString());
-		while (itr.hasMoreTokens()) {
-			word.set(itr.nextToken());
-			context.write(word, counter);
-		}
+		// StringTokenizer itr = new StringTokenizer(value.toString());
+		// while (itr.hasMoreTokens()) {
+		// 	word.set(itr.nextToken());
+		// 	context.write(word, counter);
+		// }
 	}
 }
