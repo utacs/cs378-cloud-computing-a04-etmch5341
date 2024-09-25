@@ -10,20 +10,28 @@ public class GPSErrorRatesReducer extends  Reducer<Text, Text, Text, Text> {
 
     // Text object for output "<# of Errors> <count of taxis>" - delim: " "
 
-    public void reduce(Text text, Iterable<IntWritable> values, Context context)
+    public void reduce(Text text, Iterable<Text> values, Context context)
             throws IOException, InterruptedException {
         
-        int sum = 0;
+        int totalErrors = 0; //index 0
+        float totalTaxis = 0; //index 1
         
-        for (IntWritable value : values) {
-            sum += value.get();
-        }
         
-        // context.write(text, new IntWritable(sum));
-    }
+        for(Text v : values){
+            String[] outputArr = v.toString().split(" ");
+            if(outputArr.length == 2){
+                try{
+                    int error = Integer.parseInt(outputArr[0]);
+                    float taxi = Float.parseFloat(outputArr[1]);
 
-    //TODO: Add logger information to print results/store results
-    public void cleanup(Context context) throws IOException, InterruptedException{
-        
+                    totalErrors += error;
+                    totalTaxis += taxi;
+                } catch (Exception e){
+                    continue;
+                }
+            }
+        }
+        String output = totalErrors + " " + totalTaxis;
+        context.write(text, new Text(output));
     }
 }
