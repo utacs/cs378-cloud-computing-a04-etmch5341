@@ -28,6 +28,7 @@ public class TaxiDataDriver extends Configured implements Tool {
 		// Also need to setup parallel, but handle later
 		
 		//NOTE: Data cleaning is slightly different since gps location errors counts as empty strings -> this error counting needs to be handled in the mapper
+		//Actually we may be able to handle error cleaning in mapper because we can just use the input format they specified, but we would need to run this data cleaning step twice
 
 		int res = ToolRunner.run(new Configuration(), new TaxiDataDriver(), args);
 		System.exit(res);
