@@ -58,10 +58,19 @@ public class GPSErrorRatesMapper extends Mapper<Object, Text, Text, Text> {
 	}
 
 	/*
-	 * return - True if error andn false if no error
+	 * return - True if error and false if no error
 	 */
 	private boolean errorCheck(String[] gpsData){
-
-		return false;
+		for(int i = 0; i < gpsData.length; i++){
+			//Empty String check
+			if(gpsData[i].equals("")){
+				return false;
+			}
+			//Value 0 check
+			if(Float.parseFloat(gpsData[i]) == 0){
+				return false;
+			}
+		}
+		return true;
 	}
 }
