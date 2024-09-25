@@ -23,4 +23,9 @@ public class GPSErrorRatesMapper extends Mapper<Object, Text, Text, IntWritable>
 			context.write(word, counter);
 		}
 	}
+
+	//Need to store the GPS errors in a new file
+	public void Cleanup(Context context) throws IOException, InterruptedException{
+		
+	}
 }

@@ -98,6 +98,8 @@ public class TaxiDataDriver extends Configured implements Tool {
 			}
 		}
 
+		//Change input directory to new cleaned dataset
+		args[0] = "data/cleaned-data.csv";
 		int res = ToolRunner.run(new Configuration(), new TaxiDataDriver(), args);
 		System.exit(res);
 	}

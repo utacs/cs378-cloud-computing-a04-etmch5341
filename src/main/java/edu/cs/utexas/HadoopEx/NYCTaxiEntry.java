@@ -39,16 +39,39 @@ public class NYCTaxiEntry {
         StringBuilder tolls = new StringBuilder();
         StringBuilder time = new StringBuilder(); //total trip time for the entry
         StringBuilder total = new StringBuilder();
+
+        //Assignment 4
+        StringBuilder pickup_datetime = new StringBuilder();
+        StringBuilder pickup_longtitude = new StringBuilder();
+        StringBuilder pickup_latitude = new StringBuilder();
+        StringBuilder dropoff_longtitude = new StringBuilder();
+        StringBuilder dropoff_latitude = new StringBuilder();
+
         for (int i = 0; i < line.length(); i++) {
+            //we should convert this into a switch statement at least...
             if (line.charAt(i) == ',') {
                 count++;
             } else if (count == 0) {
                 taxi.append(line.charAt(i));
             } else if (count == 1) {
                 driver.append(line.charAt(i));
+            //Assignment 4
+            } else if (count == 2){
+                pickup_datetime.append(line.charAt(i));
+            //----
             } else if (count == 4){
                 time.append(line.charAt(i));
+            //Assignment 4
+            } else if (count == 6){
+                pickup_longtitude.append(line.charAt(i));
+            } else if (count == 7){
+                pickup_latitude.append(line.charAt(i));
+            } else if (count == 8){
+                dropoff_longtitude.append(line.charAt(i));
+            } else if (count == 9){
+                dropoff_latitude.append(line.charAt(i));
             } else if (count == 11) {
+            //----
                 fare.append(line.charAt(i));
             } else if (count == 12) {
                 surcharge.append(line.charAt(i));
