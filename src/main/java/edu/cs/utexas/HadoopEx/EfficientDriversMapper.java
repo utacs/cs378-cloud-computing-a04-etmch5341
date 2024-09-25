@@ -16,6 +16,28 @@ public class EfficientDriversMapper extends Mapper<Object, Text, Text, Text> {
 
 	public void map(Object key, Text value, Context context) 
 			throws IOException, InterruptedException {
+
+		String[] entries = value.toString().split(",");
+
+		word.set(entries[1]);
+
+		int earnings;
+		int trip_time_min;
+		try {
+			earnings = Integer.parseInt(itr[16]);
+			trip_time_min = Integer.parseInt(itr[4]) * 60;
+		} catch (NumberFormatException e) {
+			return;
+		}
+
+		Text earnings_and_minutes = new Text();
+		IntWritable earningsWritable = new IntWritable(earnings);
+		IntWritable tripTimeWritable = new IntWritable(trip_time_min);
+
+		earnings_and_minutes.set(earningsWritable.toString() + "," + tripTimeWritable.toString());
+
+		context.write(word, earnings_and_minutes);
+
 		
 		// StringTokenizer itr = new StringTokenizer(value.toString());
 		// while (itr.hasMoreTokens()) {

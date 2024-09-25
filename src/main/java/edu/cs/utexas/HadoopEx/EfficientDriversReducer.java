@@ -11,13 +11,20 @@ public class EfficientDriversReducer extends  Reducer<Text, IntWritable, Text, I
    public void reduce(Text text, Iterable<IntWritable> values, Context context)
            throws IOException, InterruptedException {
 	   
-       int sum = 0;
+        int total_earnings;
+		int total_trip_time;
        
-       for (IntWritable value : values) {
-           sum += value.get();
+       for (Text value : values) {
+           String earnings_and_minutes = value.toString();
+           String[] itr = earnings_and_minutes.split(",");
+           total_earnings += Integer.parseInt(itr[0]);
+           total_trip_time += Integer.parseInt(itr[1]);
        }
+
+       Text total_earnings_and_minutes = new Text()
+       total_earnings_and_minutes.set(Integer.toString(total_earnings) + "," + Integer.toString(total_trip_time);)
        
-       context.write(text, new IntWritable(sum));
+       context.write(text, total_earnings_and_minutes);
    }
 
     //TODO: Add logger information to print results/store results
