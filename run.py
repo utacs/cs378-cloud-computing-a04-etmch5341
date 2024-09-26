@@ -54,8 +54,7 @@ def run(data_id: str, cleansed_folder: str, intermediate_folder: str, task1_fold
     if rjar:
         subprocess.run(['java', '-jar', jar_file_path, data_file_path, cleansed_folder, intermediate_folder, task1_folder, task2_folder, task3_folder])
     else:
-        # run as hadoop
-        pass
+        subprocess.run(['hadoop', 'jar', jar_file_path, 'edu.cs.utexas.HadoopEx.TaxiDataDriver', data_file_path, cleansed_folder, intermediate_folder, task1_folder, task2_folder, task3_folder])
 
 def main():
     # create the parser
