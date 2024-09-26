@@ -33,7 +33,7 @@ public class TopKDriverMapper extends Mapper<Text, Text, Text, Text> {
 
 		pq.add(new MostEfficientDrivers(new Text(key), new FloatWritable(earningsPerMin)));
 
-		if (pq.size() > 5) {
+		if (pq.size() > 10) {
 			pq.poll();
 		}
 	}

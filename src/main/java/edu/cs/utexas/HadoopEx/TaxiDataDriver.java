@@ -178,6 +178,7 @@ public class TaxiDataDriver extends Configured implements Tool {
 					TextOutputFormat.class,
 					args.cleansed,
 					args.task1);
+			task1.j.setNumReduceTasks(1);
 			task1.execute();
 
 			// ================== task 2 =========================
@@ -194,7 +195,6 @@ public class TaxiDataDriver extends Configured implements Tool {
 					TextOutputFormat.class,
 					args.cleansed,
 					args.intermediate + "/task2p1");
-			task2p1.j.setNumReduceTasks(1);
 			task2p1.execute();
 
 			JobWrapper task2p2 = new JobWrapper(
@@ -227,7 +227,6 @@ public class TaxiDataDriver extends Configured implements Tool {
 					TextOutputFormat.class,
 					args.cleansed,
 					args.intermediate + "/task3p1");
-			task3p1.j.setNumReduceTasks(1);
 			task3p1.execute();
 
 			JobWrapper task3p2 = new JobWrapper(
@@ -243,7 +242,7 @@ public class TaxiDataDriver extends Configured implements Tool {
 					TextOutputFormat.class,
 					args.intermediate + "/task3p1",
 					args.task3);
-			// task3p2.j.setNumReduceTasks(1);
+			task3p2.j.setNumReduceTasks(1);
 			task3p2.execute();
 
 		} catch (IOException e) {

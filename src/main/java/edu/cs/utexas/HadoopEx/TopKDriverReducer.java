@@ -44,7 +44,7 @@ public class TopKDriverReducer extends Reducer<Text, Text, Text, Text> {
             logger.info("PQ Status: " + pq.toString());
         }
 
-        while (pq.size() > 5) {
+        while (pq.size() > 10) {
             pq.poll();
         }
 
