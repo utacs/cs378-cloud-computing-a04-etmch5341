@@ -85,6 +85,13 @@
 			<artifactId>hadoop-core</artifactId>
 			<version>1.2.1</version>
 		</dependency>
+
+		<!-- GCS Connector for Hadoop -->
+		<dependency>
+			<groupId>com.google.cloud.bigdataoss</groupId>
+			<artifactId>gcs-connector</artifactId>
+			<version>hadoop2-2.2.9</version> <!-- Choose the correct version for your Hadoop -->
+		</dependency>
 	</dependencies>
 
 	<pluginRepositories>
