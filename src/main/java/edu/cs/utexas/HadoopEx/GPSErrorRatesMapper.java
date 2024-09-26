@@ -13,62 +13,68 @@ public class GPSErrorRatesMapper extends Mapper<Object, Text, Text, Text> {
 	private Text taxiID = new Text();
 	// Text object for output "<# of Errors> <count of taxis>" - delim: " "
 	private Text output = new Text();
-	
-	public void map(Object key, Text value, Context context) 
+
+	public void map(Object key, Text value, Context context)
 			throws IOException, InterruptedException {
-		
+
 		// StringTokenizer itr = new StringTokenizer(value.toString());
 		// while (itr.hasMoreTokens()) {
-		// 	word.set(itr.nextToken());
-		// 	context.write(word, counter);
+		// word.set(itr.nextToken());
+		// context.write(word, counter);
 		// }
 
 		String[] fields = value.toString().split(",");
 
-        // Ensure the line has enough columns
-        if (fields.length > 11) {
-            String taxi = fields[0];
-            taxiID.set(taxi);
+		// Get the taxi ID
+		String taxi = fields[0];
+		taxiID.set(taxi);
 
+		// Ensure the line has enough columns
+		// reset errorCount
+		int error = 0;
+
+		// check if there is an error
+		try {
 			/*
-			 *  * pickup_longtitude - index 6
-			 *	* pickup_latitude - index 7
-			 *	* dropoff_longtitutde - index 8
-			 *	* dropoff_latitude - index 9
+			 * * pickup_longtitude - index 6
+			 * * pickup_latitude - index 7
+			 * * dropoff_longtitutde - index 8
+			 * * dropoff_latitude - index 9
 			 */
 
 			String[] gpsData = {
-				fields[6],
-				fields[7],
-				fields[8],
-				fields[9]
+					fields[6],
+					fields[7],
+					fields[8],
+					fields[9]
 			};
 
-			if(errorCheck(gpsData)){
-				output.set("0 1"); //Error
+			if (errorCheck(gpsData)) {
+				error = 1;
 			}
-			else{
-				output.set("1 1"); //No error
-			}
-			
-            context.write(taxiID, output);
-        }
+		} catch (Exception e) {
+			error = 1;
+		}
+
+		output.set(error + " 1");
+
+		context.write(taxiID, output);
 	}
 
 	/*
 	 * return - True if error and false if no error
 	 */
-	private boolean errorCheck(String[] gpsData){
-		for(int i = 0; i < gpsData.length; i++){
-			//Empty String check
-			if(gpsData[i].equals("")){
-				return false;
+	private boolean errorCheck(String[] gpsData) {
+		for (int i = 0; i < gpsData.length; i++) {
+			// Empty String check
+			if (gpsData[i].equals("")) {
+				return true;
 			}
-			//Value 0 check
-			if(Float.parseFloat(gpsData[i]) == 0){
-				return false;
+			// Value 0 check
+			if (Float.parseFloat(gpsData[i]) == 0) {
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 }

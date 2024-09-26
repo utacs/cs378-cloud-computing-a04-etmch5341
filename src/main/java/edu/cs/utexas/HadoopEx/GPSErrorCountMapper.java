@@ -1,8 +1,6 @@
 package edu.cs.utexas.HadoopEx;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -19,10 +17,14 @@ public class GPSErrorCountMapper extends Mapper<Object, Text, IntWritable, IntWr
 
 		String[] fields = value.toString().split(",");
 
-		// Ensure the line has enough columns
-		if (fields.length > 11) {
-			String hour = parseHourOfDay(fields[2]);
-			hourOfDay.set(Integer.parseInt(hour) + 1);
+		String hour = parseHourOfDay(fields[2]);
+		hourOfDay.set(Integer.parseInt(hour) + 1);
+		
+		// reset errorCount
+		errorCount.set(0);
+
+		// check if there is an error
+		try {
 
 			/*
 			 * * pickup_longtitude - index 6
@@ -37,11 +39,16 @@ public class GPSErrorCountMapper extends Mapper<Object, Text, IntWritable, IntWr
 					fields[8],
 					fields[9]
 			};
-			
-			errorCount.set(errorCheck(gpsData) ? 1 : 0);
 
-			context.write(hourOfDay, errorCount);
+			if (errorCheck(gpsData)) {
+				errorCount.set(1);
+			}
+		} catch (Exception e) {
+			errorCount.set(1);
 		}
+
+		// write to context
+		context.write(hourOfDay, errorCount);
 	}
 
 	/*
@@ -54,11 +61,7 @@ public class GPSErrorCountMapper extends Mapper<Object, Text, IntWritable, IntWr
 				return true;
 			}
 			// Value 0 check
-			try {
-				if (Float.parseFloat(gpsData[i]) == 0) {
-					return true;
-				}
-			} catch (NumberFormatException e) {
+			if (Float.parseFloat(gpsData[i]) == 0) {
 				return true;
 			}
 		}
