@@ -1,13 +1,13 @@
 # control vars
-DATA_ID=small-https
+DATA_ID=big
 CLEANSED="cleansed"
 INTERMEDIATE="intermediate"
 TASK1="task1"
 TASK2="task2"
 TASK3="task3"
 
-# RJAR=""
-RJAR="--rjar"
+RJAR=""
+# RJAR="--rjar"
 
 # delete all the folders
 rm -rf $CLEANSED
