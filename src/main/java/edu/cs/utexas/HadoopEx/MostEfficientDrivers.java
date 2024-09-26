@@ -28,7 +28,7 @@ public class MostEfficientDrivers implements Comparable<MostEfficientDrivers> {
      * @return 0 if equal, negative if this < other, positive if this > other
      */
         @Override
-        public int compareTo(TaxiAndErrorRate other) {
+        public int compareTo(MostEfficientDrivers other) {
 
             float diff = earningsPerMin.get() - other.earningsPerMin.get();
             if (diff > 0) {

@@ -12,63 +12,63 @@ public class GPSErrorCountMapper extends Mapper<Object, Text, IntWritable, IntWr
 	// IntWritable object for hourOfDay
 	private IntWritable hourOfDay = new IntWritable();
 	// IntWritable object for error count
-	private IntWritable errorCount = new IntWritable(0); //Default - no error
+	private IntWritable errorCount = new IntWritable();
 
-	private List<String> gpsErrorEntries = new ArrayList<>();
-
-	public void map(Object key, Text value, Context context) 
+	public void map(Object key, Text value, Context context)
 			throws IOException, InterruptedException {
 
 		String[] fields = value.toString().split(",");
 
-        // Ensure the line has enough columns
-        if (fields.length > 11) {
-            String hour = parseHourOfDay(fields[2]);
-            hourOfDay.set(Integer.parseInt(hour));
+		// Ensure the line has enough columns
+		if (fields.length > 11) {
+			String hour = parseHourOfDay(fields[2]);
+			hourOfDay.set(Integer.parseInt(hour) + 1);
 
 			/*
-			 *  * pickup_longtitude - index 6
-			 *	* pickup_latitude - index 7
-			 *	* dropoff_longtitutde - index 8
-			 *	* dropoff_latitude - index 9
+			 * * pickup_longtitude - index 6
+			 * * pickup_latitude - index 7
+			 * * dropoff_longtitutde - index 8
+			 * * dropoff_latitude - index 9
 			 */
 
 			String[] gpsData = {
-				fields[6],
-				fields[7],
-				fields[8],
-				fields[9]
+					fields[6],
+					fields[7],
+					fields[8],
+					fields[9]
 			};
+			
+			errorCount.set(errorCheck(gpsData) ? 1 : 0);
 
-			if(!errorCheck(gpsData)){
-				errorCount.set(1); //Error
-			}
-
-            context.write(hourOfDay, errorCount);
-        }
+			context.write(hourOfDay, errorCount);
+		}
 	}
 
 	/*
 	 * return - True if error and false if no error
 	 */
-	private boolean errorCheck(String[] gpsData){
-		for(int i = 0; i < gpsData.length; i++){
-			//Empty String check
-			if(gpsData[i].equals("")){
-				return false;
+	private boolean errorCheck(String[] gpsData) {
+		for (int i = 0; i < gpsData.length; i++) {
+			// Empty String check
+			if (gpsData[i].equals("")) {
+				return true;
 			}
-			//Value 0 check
-			if(Float.parseFloat(gpsData[i]) == 0){
-				return false;
+			// Value 0 check
+			try {
+				if (Float.parseFloat(gpsData[i]) == 0) {
+					return true;
+				}
+			} catch (NumberFormatException e) {
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
-	private String parseHourOfDay(String s){
-		//19 total characters
-		//Will just split and get first 2 characters of second item of split
+	private String parseHourOfDay(String s) {
+		// 19 total characters
+		// Will just split and get first 2 characters of second item of split
 		return s.split(" ")[1].substring(0, 2);
 	}
-	
+
 }

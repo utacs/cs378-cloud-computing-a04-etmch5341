@@ -1,21 +1,16 @@
 package edu.cs.utexas.HadoopEx;
 
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.CSVRecord;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
@@ -23,6 +18,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
@@ -94,39 +90,6 @@ public class TaxiDataDriver extends Configured implements Tool {
 	public static void main(String[] argsStringArr) throws Exception {
 		int res = ToolRunner.run(new Configuration(), new TaxiDataDriver(), argsStringArr);
 		System.exit(res);
-
-		// TODO: Handle data cleaning here using NYCTaxiEntry class
-		// Also need to setup parallel, but handle later
-
-		// NOTE: Data cleaning is slightly different since gps location errors counts as
-		// empty strings -> this error counting needs to be handled in the mapper
-		// Actually we may be able to handle error cleaning in mapper because we can
-		// just use the input format they specified, but we would need to run this data
-		// cleaning step twice
-		// Args passArgs = Args.parseArgs(args);
-		// Reader in = new FileReader("passArgs.inputFilePath");
-		// FileWriter fw = new FileWriter("data/cleaned-data.csv");
-
-		// CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-		// .build();
-
-		// Iterable<CSVRecord> records = csvFormat.parse(in);
-
-		// for (CSVRecord record : records) {
-		// //Create entry and data clean entry
-		// //TODO: Need to clean for other values we need to consider (GPS data)
-		// NYCTaxiEntry entry = NYCTaxiEntry.fromString(record.toString());
-
-		// //Add entry to new CSV if formated correctly
-		// if(entry != null){
-		// try (final CSVPrinter printer = new CSVPrinter(fw, csvFormat)) {
-		// printer.printRecord(record);
-		// }
-		// }
-		// }
-
-		// //Change input directory to new cleaned dataset
-		// args[0] = "data/cleaned-data.csv";
 	}
 
 	/**
@@ -136,20 +99,20 @@ public class TaxiDataDriver extends Configured implements Tool {
 		public Job j;
 
 		public JobWrapper(String jobName, Configuration conf,
-				Class<? extends Mapper> map, Class<?> mapKey, Class<?> mapValue,
-				Class<? extends Reducer> red, Class<?> redKey, Class<?> reduceValue,
+				Class<? extends Mapper> map, Class<?> mapOutKey, Class<?> mapOutValue,
+				Class<? extends Reducer> red, Class<?> redOutKey, Class<?> redOutValue,
 				Class<? extends InputFormat> inputFormat, Class<? extends OutputFormat> outputFormat,
 				String inputPath, String outputPath) throws IOException {
 			j = new Job(conf, jobName);
 			j.setJarByClass(TaxiDataDriver.class);
 
 			j.setMapperClass(map);
-			j.setMapOutputKeyClass(mapKey);
-			j.setMapOutputValueClass(mapValue);
+			j.setMapOutputKeyClass(mapOutKey);
+			j.setMapOutputValueClass(mapOutValue);
 
 			j.setReducerClass(red);
-			j.setOutputKeyClass(redKey);
-			j.setOutputValueClass(reduceValue);
+			j.setOutputKeyClass(redOutKey);
+			j.setOutputValueClass(redOutValue);
 
 			FileInputFormat.addInputPath(j, new Path(inputPath));
 			j.setInputFormatClass(inputFormat);
@@ -184,8 +147,8 @@ public class TaxiDataDriver extends Configured implements Tool {
 		// create a configuration object
 		Configuration conf = new Configuration();
 
-		try {		
-			// start the data cleaning process
+		try {
+			// ================= data cleaning ====================
 			JobWrapper dataCleaner = new JobWrapper(
 					"Data Cleaning",
 					conf,
@@ -193,16 +156,95 @@ public class TaxiDataDriver extends Configured implements Tool {
 					Text.class,
 					Text.class,
 					DataCleanerReducer.class,
-					Text.class,
+					NullWritable.class,
 					Text.class,
 					TextInputFormat.class,
 					TextOutputFormat.class,
 					args.data,
 					args.cleansed);
 			dataCleaner.execute();
-		
 
+			// ================== task 1 =========================
+			JobWrapper task1 = new JobWrapper(
+					"Task 1",
+					conf,
+					GPSErrorCountMapper.class,
+					IntWritable.class,
+					IntWritable.class,
+					GPSErrorCountReducer.class,
+					IntWritable.class,
+					IntWritable.class,
+					TextInputFormat.class,
+					TextOutputFormat.class,
+					args.cleansed,
+					args.task1);
+			task1.execute();
 
+			// ================== task 2 =========================
+			JobWrapper task2p1 = new JobWrapper(
+					"Task 2 - Part 1",
+					conf,
+					GPSErrorRatesMapper.class,
+					Text.class,
+					Text.class,
+					GPSErrorRatesReducer.class,
+					Text.class,
+					Text.class,
+					TextInputFormat.class,
+					TextOutputFormat.class,
+					args.cleansed,
+					args.intermediate + "/task2p1");
+			// task2p1.j.setNumReduceTasks(1);
+			task2p1.execute();
+
+			JobWrapper task2p2 = new JobWrapper(
+					"Task 2 - Part 2",
+					conf,
+					TopKGPSErrorRateMapper.class,
+					Text.class,
+					Text.class,
+					TopKGPSErrorRateReducer.class,
+					Text.class,
+					Text.class,
+					KeyValueTextInputFormat.class,
+					TextOutputFormat.class,
+					args.intermediate + "/task2p1",
+					args.task2);
+			// task2p2.j.setNumReduceTasks(1);
+			task2p2.execute();
+
+			// ================== task 3 =========================
+			JobWrapper task3p1 = new JobWrapper(
+					"Task 3 - Part 1",
+					conf,
+					EfficientDriversMapper.class,
+					Text.class,
+					Text.class,
+					EfficientDriversReducer.class,
+					Text.class,
+					Text.class,
+					TextInputFormat.class,
+					TextOutputFormat.class,
+					args.cleansed,
+					args.intermediate + "/task3p1");
+			// task3p1.j.setNumReduceTasks(1);
+			task3p1.execute();
+
+			JobWrapper task3p2 = new JobWrapper(
+					"Task 3 - Part 2",
+					conf,
+					TopKDriverMapper.class,
+					Text.class,
+					Text.class,
+					TopKDriverReducer.class,
+					Text.class,
+					Text.class,
+					KeyValueTextInputFormat.class,
+					TextOutputFormat.class,
+					args.intermediate + "/task3p1",
+					args.task3);
+			// task3p2.j.setNumReduceTasks(1);
+			task3p2.execute();
 
 		} catch (IOException e) {
 			System.err.println("Error in job creation.");

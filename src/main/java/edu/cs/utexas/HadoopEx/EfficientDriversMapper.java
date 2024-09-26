@@ -1,9 +1,7 @@
 package edu.cs.utexas.HadoopEx;
 
 import java.io.IOException;
-import java.util.StringTokenizer;
 
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -21,20 +19,18 @@ public class EfficientDriversMapper extends Mapper<Object, Text, Text, Text> {
 
 		word.set(entries[1]);
 
-		int earnings;
-		int trip_time_min;
+		float earnings;
+		float trip_time_min;
 		try {
-			earnings = Integer.parseInt(entries[16]);
-			trip_time_min = Integer.parseInt(entries[4]) * 60;
-		} catch (NumberFormatException e) {
+			earnings = Float.parseFloat(entries[16]);
+			trip_time_min = Float.parseFloat(entries[4]) / 60;
+		} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
 			return;
 		}
 
 		Text earnings_and_minutes = new Text();
-		IntWritable earningsWritable = new IntWritable(earnings);
-		IntWritable tripTimeWritable = new IntWritable(trip_time_min);
 
-		earnings_and_minutes.set(earningsWritable.toString() + "," + tripTimeWritable.toString());
+		earnings_and_minutes.set(earnings + " " + trip_time_min);
 
 		context.write(word, earnings_and_minutes);
 

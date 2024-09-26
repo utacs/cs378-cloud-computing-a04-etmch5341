@@ -1,14 +1,11 @@
 package edu.cs.utexas.HadoopEx;
 
-import org.apache.hadoop.io.FloatWritable;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Mapper;
-
 import java.io.IOException;
 import java.util.PriorityQueue;
 
-
+import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.log4j.Logger;
 
 
@@ -36,10 +33,10 @@ public class TopKGPSErrorRateMapper extends Mapper<Text, Text, Text, Text> {
 		
 		String[] outputArr = value.toString().split(" ");
 		int totalError = Integer.parseInt(outputArr[0]); //index 0
-        float totalTaxi = Float.parseFloat(outputArr[1]); //index 1
-		float rate = totalError/totalTaxi;
+        int totalTaxi = Integer.parseInt(outputArr[1]); //index 1
+		float rate = totalError/((float)totalTaxi);
 
-		pq.add(new TaxiAndErrorRate(new Text(key), new FloatWritable(rate)) );
+		pq.add(new TaxiAndErrorRate(new Text(key.toString()), new FloatWritable(rate)) );
 
 		if (pq.size() > 10) {
 			pq.poll();

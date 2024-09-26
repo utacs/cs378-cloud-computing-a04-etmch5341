@@ -10,12 +10,13 @@ DATA_DIR = 'data'
 @dataclass
 class DataFileInfo:
     name: str
+    compressed_name: str
     url: str
 
 DATA_FILES = {
-    "small-https" : DataFileInfo("small-https.csv.bz2", "https://storage.googleapis.com/cs378/taxi-data-sorted-small.csv"),
-    "small-gs" : DataFileInfo("small-gs.csv.bz2", "gs://cs378/taxi-data-sorted-small.csv"),
-    "big": DataFileInfo("big.csv.bz2", "gs://cs378/taxi-data-sorted-large.csv"),
+    "small-https" : DataFileInfo("small-https.csv", "small-https.csv", "https://storage.googleapis.com/cs378/taxi-data-sorted-small.csv"),
+    "small-gs" : DataFileInfo("small-gs.csv", "small-gs.csv", "gs://cs378/taxi-data-sorted-small.csv"),
+    "big": DataFileInfo("big.csv", "big.csv", "gs://cs378/taxi-data-sorted-large.csv"),
 }
 
 def ensure_data_file(data_id: str):
@@ -27,10 +28,16 @@ def ensure_data_file(data_id: str):
     data_file_info = DATA_FILES[data_id]
     
     # check that the compressed file exists
-    file_path = os.path.join(DATA_DIR, data_file_info.name)
-    if not os.path.exists(file_path):
+    compressed_file_path = os.path.join(DATA_DIR, data_file_info.compressed_name)
+    if not os.path.exists(compressed_file_path):
         # download the file
-        subprocess.run(['wget', '-O', file_path, data_file_info.url])
+        subprocess.run(['wget', '-O', compressed_file_path, data_file_info.url])
+    
+    # check that the decompressed file exists
+    decompressed_file_path = os.path.join(DATA_DIR, data_file_info.name)
+    if not os.path.exists(decompressed_file_path):
+        # decompress the file using lbzip2
+        subprocess.run(['lbzip2', '-d', '-k', '-v', compressed_file_path])
 
 def run(data_id: str, cleansed_folder: str, intermediate_folder: str, task1_folder: str, task2_folder: str, task3_folder: str, rjar: bool):
     # ensure the data file

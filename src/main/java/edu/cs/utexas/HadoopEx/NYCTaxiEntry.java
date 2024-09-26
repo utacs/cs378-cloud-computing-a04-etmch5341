@@ -104,11 +104,12 @@ public class NYCTaxiEntry {
             f_time = checkFloat(time.toString());
             f_total = checkFloat(total.toString());
 
-            f_pickup_longtitude = checkFloat(pickup_longtitude.toString() == "" ? "0" : pickup_longtitude.toString());
-            f_pickup_latitude = checkFloat(pickup_latitude.toString() == "" ? "0" : pickup_latitude.toString());
+            f_pickup_longtitude = checkFloat(
+                    pickup_longtitude.toString().equals("") ? "0" : pickup_longtitude.toString());
+            f_pickup_latitude = checkFloat(pickup_latitude.toString().equals("") ? "0" : pickup_latitude.toString());
             f_dropoff_longtitude = checkFloat(
-                    dropoff_longtitude.toString() == "" ? "0" : dropoff_longtitude.toString());
-            f_dropoff_latitude = checkFloat(dropoff_latitude.toString() == "" ? "0" : dropoff_latitude.toString());
+                    dropoff_longtitude.toString().equals("") ? "0" : dropoff_longtitude.toString());
+            f_dropoff_latitude = checkFloat(dropoff_latitude.toString().equals("") ? "0" : dropoff_latitude.toString());
 
             if (f_fare >= 0 && f_surcharge >= 0 && f_tax >= 0 && f_tip >= 0 && f_tolls >= 0 && f_total >= 0) {
                 float f_total_calculated = f_fare + f_surcharge + f_tax + f_tip + f_tolls;
