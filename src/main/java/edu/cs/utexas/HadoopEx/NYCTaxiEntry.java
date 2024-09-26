@@ -37,10 +37,10 @@ public class NYCTaxiEntry {
         StringBuilder tax = new StringBuilder();
         StringBuilder tip = new StringBuilder();
         StringBuilder tolls = new StringBuilder();
-        StringBuilder time = new StringBuilder(); //total trip time for the entry
+        StringBuilder time = new StringBuilder(); // total trip time for the entry
         StringBuilder total = new StringBuilder();
 
-        //Assignment 4
+        // Assignment 4
         StringBuilder pickup_datetime = new StringBuilder();
         StringBuilder pickup_longtitude = new StringBuilder();
         StringBuilder pickup_latitude = new StringBuilder();
@@ -48,30 +48,30 @@ public class NYCTaxiEntry {
         StringBuilder dropoff_latitude = new StringBuilder();
 
         for (int i = 0; i < line.length(); i++) {
-            //we should convert this into a switch statement at least...
+            // we should convert this into a switch statement at least...
             if (line.charAt(i) == ',') {
                 count++;
             } else if (count == 0) {
                 taxi.append(line.charAt(i));
             } else if (count == 1) {
                 driver.append(line.charAt(i));
-            //Assignment 4
-            } else if (count == 2){
+                // Assignment 4
+            } else if (count == 2) {
                 pickup_datetime.append(line.charAt(i));
-            //----
-            } else if (count == 4){
+                // ----
+            } else if (count == 4) {
                 time.append(line.charAt(i));
-            //Assignment 4
-            } else if (count == 6){
+                // Assignment 4
+            } else if (count == 6) {
                 pickup_longtitude.append(line.charAt(i));
-            } else if (count == 7){
+            } else if (count == 7) {
                 pickup_latitude.append(line.charAt(i));
-            } else if (count == 8){
+            } else if (count == 8) {
                 dropoff_longtitude.append(line.charAt(i));
-            } else if (count == 9){
+            } else if (count == 9) {
                 dropoff_latitude.append(line.charAt(i));
             } else if (count == 11) {
-            //----
+                // ----
                 fare.append(line.charAt(i));
             } else if (count == 12) {
                 surcharge.append(line.charAt(i));
@@ -104,10 +104,11 @@ public class NYCTaxiEntry {
             f_time = checkFloat(time.toString());
             f_total = checkFloat(total.toString());
 
-            f_pickup_longtitude = checkFloat(pickup_longtitude.toString());
-            f_pickup_latitude = checkFloat(pickup_latitude.toString());
-            f_dropoff_longtitude = checkFloat(dropoff_longtitude.toString());
-            f_dropoff_latitude = checkFloat(dropoff_latitude.toString());
+            f_pickup_longtitude = checkFloat(pickup_longtitude.toString() == "" ? "0" : pickup_longtitude.toString());
+            f_pickup_latitude = checkFloat(pickup_latitude.toString() == "" ? "0" : pickup_latitude.toString());
+            f_dropoff_longtitude = checkFloat(
+                    dropoff_longtitude.toString() == "" ? "0" : dropoff_longtitude.toString());
+            f_dropoff_latitude = checkFloat(dropoff_latitude.toString() == "" ? "0" : dropoff_latitude.toString());
 
             if (f_fare >= 0 && f_surcharge >= 0 && f_tax >= 0 && f_tip >= 0 && f_tolls >= 0 && f_total >= 0) {
                 float f_total_calculated = f_fare + f_surcharge + f_tax + f_tip + f_tolls;
@@ -166,7 +167,7 @@ public class NYCTaxiEntry {
          * Serialize the NYCTaxiEntry object to a byte array
          * 
          * @param item the NYCTaxiEntry object to be serialized
-         * @throws UnsupportedEncodingException 
+         * @throws UnsupportedEncodingException
          */
         public static void serialize(NYCTaxiEntry item, ByteBuffer buffer) throws UnsupportedEncodingException {
             // add the serialized driver id
@@ -188,12 +189,12 @@ public class NYCTaxiEntry {
          * 
          * @param data the byte array to be deserialized
          * @return the deserialized NYCTaxiEntry object
-         * @throws UnsupportedEncodingException 
+         * @throws UnsupportedEncodingException
          */
         public static NYCTaxiEntry deserialize(ByteBuffer buffer) throws UnsupportedEncodingException {
             // undo the serialization
             NYCTaxiEntry entry = new NYCTaxiEntry();
-            
+
             // get the driver id
             int driverSize = buffer.getInt();
             byte[] driverArr = new byte[driverSize];

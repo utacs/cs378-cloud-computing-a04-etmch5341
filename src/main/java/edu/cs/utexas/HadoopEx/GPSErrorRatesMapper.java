@@ -13,9 +13,7 @@ public class GPSErrorRatesMapper extends Mapper<Object, Text, Text, Text> {
 	private Text taxiID = new Text();
 	// Text object for output "<# of Errors> <count of taxis>" - delim: " "
 	private Text output = new Text();
-
-	private List<String> gpsErrorEntries = new ArrayList<>();
-
+	
 	public void map(Object key, Text value, Context context) 
 			throws IOException, InterruptedException {
 		

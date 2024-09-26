@@ -41,12 +41,7 @@ public class TopKGPSErrorRateReducer extends  Reducer<Text, Text, Text, Text> {
    public void reduce(Text key, Iterable<Text> values, Context context)
            throws IOException, InterruptedException {
 
-
-       // A local counter just to illustrate the number of values here!
         int counter = 0 ;
-
-
-       // size of values is 1 because key only has one distinct value
        for (Text value : values) {
            counter = counter + 1;
            logger.info("Reducer Text: counter is " + counter);
@@ -58,7 +53,6 @@ public class TopKGPSErrorRateReducer extends  Reducer<Text, Text, Text, Text> {
            logger.info("PQ Status: " + pq.toString());
        }
 
-       // keep the priorityQueue size <= heapSize
        while (pq.size() > 5) {
            pq.poll();
        }
@@ -80,8 +74,6 @@ public class TopKGPSErrorRateReducer extends  Reducer<Text, Text, Text, Text> {
         logger.info("values.size() is " + values.size());
         logger.info(values.toString());
 
-
-        // reverse so they are ordered in descending order
         Collections.reverse(values);
 
 

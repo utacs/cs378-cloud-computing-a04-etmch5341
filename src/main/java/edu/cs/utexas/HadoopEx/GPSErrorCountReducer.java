@@ -6,22 +6,19 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
-public class GPSErrorCountReducer extends  Reducer<Text, IntWritable, Text, IntWritable> {
+public class GPSErrorCountReducer extends  Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
 
-   public void reduce(Text text, Iterable<IntWritable> values, Context context)
+   public void reduce(IntWritable text, Iterable<IntWritable> values, Context context)
            throws IOException, InterruptedException {
 	   
-       int sum = 0;
+       int errorCount = 0;
        
        for (IntWritable value : values) {
-           sum += value.get();
+           errorCount += value.get();
        }
        
-       context.write(text, new IntWritable(sum));
-   }
-
-   //TODO: Add logger information to print results/store results
-   public void cleanup(Context context) throws IOException, InterruptedException{
-		
+       //TODO: Make sure it is stored in order
+       //Writes hourOfDay and number of errors
+       context.write(text, new IntWritable(errorCount)); //Pretty sure this just writes to results
    }
 }
