@@ -17,7 +17,7 @@ public class TopKGPSErrorRateMapper extends Mapper<Text, Text, Text, Text> {
 	private Logger logger = Logger.getLogger(TopKGPSErrorRateMapper.class);
 
 
-	private PriorityQueue<WordAndCount> pq;
+	private PriorityQueue<TaxiAndErrorRate> pq;
 
 	public void setup(Context context) {
 		pq = new PriorityQueue<>();
@@ -35,11 +35,11 @@ public class TopKGPSErrorRateMapper extends Mapper<Text, Text, Text, Text> {
 
 		
 		String[] outputArr = value.toString().split(" ");
-		int totalFlights = Integer.parseInt(outputArr[0]); //index 0
-        float totalDelayDeparture = Float.parseFloat(outputArr[1]); //index 1
-		float ratio = totalDelayDeparture/totalFlights;
+		int totalError = Integer.parseInt(outputArr[0]); //index 0
+        float totalTaxi = Float.parseFloat(outputArr[1]); //index 1
+		float rate = totalError/totalTaxi;
 
-		pq.add(new WordAndCount(new Text(key), new FloatWritable(ratio)) );
+		pq.add(new TaxiAndErrorRate(new Text(key), new FloatWritable(rate)) );
 
 		if (pq.size() > 10) {
 			pq.poll();
@@ -50,8 +50,8 @@ public class TopKGPSErrorRateMapper extends Mapper<Text, Text, Text, Text> {
 
 
 		while (pq.size() > 0) {
-			WordAndCount wordAndCount = pq.poll();
-			context.write(new Text(wordAndCount.getWord()), new Text(wordAndCount.getCount().toString()));
+			TaxiAndErrorRate taxiAndErrorRate = pq.poll();
+			context.write(new Text(taxiAndErrorRate.getTaxiId()), new Text(taxiAndErrorRate.getErrorRate().toString()));
 			logger.info("TopKMapper PQ Status: " + pq.toString());
 		}
 	}

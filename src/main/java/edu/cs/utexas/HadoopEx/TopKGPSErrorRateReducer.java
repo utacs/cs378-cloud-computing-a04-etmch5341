@@ -18,7 +18,7 @@ import java.util.Iterator;
 
 public class TopKGPSErrorRateReducer extends  Reducer<Text, Text, Text, Text> {
 
-    private PriorityQueue<WordAndCount> pq = new PriorityQueue<WordAndCount>(10);;
+    private PriorityQueue<TaxiAndErrorRate> pq = new PriorityQueue<TaxiAndErrorRate>(10);;
 
 
     private Logger logger = Logger.getLogger(TopKGPSErrorRateReducer.class);
@@ -50,16 +50,16 @@ public class TopKGPSErrorRateReducer extends  Reducer<Text, Text, Text, Text> {
        for (Text value : values) {
            counter = counter + 1;
            logger.info("Reducer Text: counter is " + counter);
-           logger.info("Reducer Text: Add this item  " + new WordAndCount(key, new FloatWritable(Float.parseFloat(value.toString()))).toString());
+           logger.info("Reducer Text: Add this item  " + new TaxiAndErrorRate(key, new FloatWritable(Float.parseFloat(value.toString()))).toString());
 
-           pq.add(new WordAndCount(new Text(key), new FloatWritable(Float.parseFloat(value.toString()))));
+           pq.add(new TaxiAndErrorRate(new Text(key), new FloatWritable(Float.parseFloat(value.toString()))));
 
            logger.info("Reducer Text: " + key.toString() + " , Count: " + value.toString());
            logger.info("PQ Status: " + pq.toString());
        }
 
        // keep the priorityQueue size <= heapSize
-       while (pq.size() > 3) {
+       while (pq.size() > 5) {
            pq.poll();
        }
 
@@ -71,7 +71,7 @@ public class TopKGPSErrorRateReducer extends  Reducer<Text, Text, Text, Text> {
         logger.info("TopKReducer cleanup cleanup.");
         logger.info("pq.size() is " + pq.size());
 
-        List<WordAndCount> values = new ArrayList<WordAndCount>(10);
+        List<TaxiAndErrorRate> values = new ArrayList<TaxiAndErrorRate>(10);
 
         while (pq.size() > 0) {
             values.add(pq.poll());
@@ -85,9 +85,9 @@ public class TopKGPSErrorRateReducer extends  Reducer<Text, Text, Text, Text> {
         Collections.reverse(values);
 
 
-        for (WordAndCount value : values) {
-            context.write(value.getWord(), new Text(value.getCount().toString()));
-            logger.info("TopKReducer - Top-10 Words are:  " + value.getWord() + "  Count:"+ value.getCount());
+        for (TaxiAndErrorRate value : values) {
+            context.write(value.getTaxiId(), new Text(value.getErrorRate().toString()));
+            logger.info("TopKReducer - Top-10 Words are:  " + value.getTaxiId() + "  Count:"+ value.getErrorRate());
         }
 
 

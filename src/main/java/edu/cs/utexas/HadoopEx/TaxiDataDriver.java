@@ -15,7 +15,6 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -130,7 +129,7 @@ public class TaxiDataDriver extends Configured implements Tool {
 			FileInputFormat.addInputPath(job1, new Path(args[0]));
 			job1.setInputFormatClass(TextInputFormat.class);
 
-			FileOutputFormat.setOutputPath(job1, new Path(args[1]));
+			FileOutputFormat.setOutputPath(job1, new Path(args[2]));
 			job1.setOutputFormatClass(TextOutputFormat.class);
 
 			//--------------------- Task 2 ----------------------
@@ -156,6 +155,29 @@ public class TaxiDataDriver extends Configured implements Tool {
 
 			FileOutputFormat.setOutputPath(job2, new Path(args[1]));
 			job2.setOutputFormatClass(TextOutputFormat.class);
+
+			if (!job2.waitForCompletion(true)) {
+				return 1;
+			}
+
+			Job job2_1 = new Job(conf, "TopKGPSErrorRates");
+			job2_1.setJarByClass(TaxiDataDriver.class);
+
+			// specify a Mapper
+			job2_1.setMapperClass(TopKGPSErrorRateMapper.class);
+
+			// specify a Reducer
+			job2_1.setReducerClass(TopKGPSErrorRateReducer.class);
+
+			// specify output types
+			job2_1.setOutputKeyClass(Text.class);
+			job2_1.setOutputValueClass(Text.class);
+
+			FileInputFormat.addInputPath(job2_1, new Path(args[1]));
+			job2_1.setInputFormatClass(TextInputFormat.class);
+
+			FileOutputFormat.setOutputPath(job2_1, new Path(args[2]));
+			job2_1.setOutputFormatClass(TextOutputFormat.class);
 
 			//--------------------- Task 3 ----------------------
 

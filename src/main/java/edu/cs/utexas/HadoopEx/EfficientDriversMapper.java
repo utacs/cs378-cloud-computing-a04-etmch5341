@@ -10,7 +10,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 public class EfficientDriversMapper extends Mapper<Object, Text, Text, Text> {
 
 	// Create a counter and initialize with 1
-	private final IntWritable counter = new IntWritable(1);
+	// private final IntWritable counter = new IntWritable(1);
 	// Create a hadoop text object to store words
 	private Text word = new Text();
 
@@ -24,8 +24,8 @@ public class EfficientDriversMapper extends Mapper<Object, Text, Text, Text> {
 		int earnings;
 		int trip_time_min;
 		try {
-			earnings = Integer.parseInt(itr[16]);
-			trip_time_min = Integer.parseInt(itr[4]) * 60;
+			earnings = Integer.parseInt(entries[16]);
+			trip_time_min = Integer.parseInt(entries[4]) * 60;
 		} catch (NumberFormatException e) {
 			return;
 		}
